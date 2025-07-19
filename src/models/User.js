@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
@@ -27,31 +28,14 @@ const userSchema = new mongoose.Schema(
     },
 
     enrolledCourses: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Enrollment",
-      },
+      { type: mongoose.Schema.Types.ObjectId, ref: "Enrollment" },
     ],
-
-    registeredEvents: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Event",
-      },
-    ],
-
+    registeredEvents: [{ type: mongoose.Schema.Types.ObjectId, ref: "Event" }],
     notifications: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Notification",
-      },
+      { type: mongoose.Schema.Types.ObjectId, ref: "Notification" },
     ],
-
     certificates: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Certificate",
-      },
+      { type: mongoose.Schema.Types.ObjectId, ref: "Certificate" },
     ],
 
     wishlist: [
@@ -76,5 +60,18 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// ✅ Hash password before saving
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    return next(err);
+  }
+});
 
 export default mongoose.models.User || mongoose.model("User", userSchema);
