@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Calendar, MapPin, Users, Clock, Star, BookOpen, TrendingUp, Bell } from 'lucide-react';
+import DashboardLayout from '../../../components/DashboardLayout';
 
 // Mock data for events
 const mockEvents = [
@@ -90,6 +91,13 @@ export default function StudentDashboard() {
   const [selectedLevel, setSelectedLevel] = useState("All");
   const [selectedLocation, setSelectedLocation] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
+
+  // Mock user info
+  const userInfo = {
+    name: "John Doe",
+    email: "john.doe@student.com",
+    verified: true
+  };
 
   // Filter events based on search and filters
   useEffect(() => {
@@ -203,32 +211,14 @@ export default function StudentDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Student Dashboard</h1>
-              <p className="text-gray-600">Discover and join learning opportunities</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Bell className="w-6 h-6 text-gray-500" />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                  3
-                </span>
-              </div>
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
-                S
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <DashboardLayout
+      userType="student"
+      userInfo={userInfo}
+      pageTitle="Student Dashboard"
+      pageDescription="Discover and join learning opportunities"
+    >
       {/* Stats Cards */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
@@ -377,6 +367,6 @@ export default function StudentDashboard() {
           )}
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
