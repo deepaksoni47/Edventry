@@ -111,17 +111,11 @@ const Sidebar = ({
         lg:relative lg:translate-x-0 lg:inset-0 lg:flex-shrink-0
         ${className}
       `}>
-        {/* Header */}
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-          <Link href={`/${userType}/dashboard`} className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">E</span>
-            </div>
-            <h1 className="text-xl font-bold text-blue-600">{config.logo}</h1>
-          </Link>
+        {/* Mobile Close Button */}
+        <div className="flex items-center justify-end h-16 px-6 border-b border-gray-200 lg:hidden">
           <button
             onClick={onToggle}
-            className="lg:hidden p-1 rounded-md hover:bg-gray-100 transition-colors"
+            className="p-1 rounded-md hover:bg-gray-100 transition-colors"
           >
             <X className="h-5 w-5 text-gray-500" />
           </button>
