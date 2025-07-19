@@ -1,18 +1,37 @@
-'use client'
-import React, { useState } from 'react';
-import { Calendar, Users, TrendingUp, Plus, Eye, Edit, Trash2, Clock, MapPin, DollarSign, Star, Bell, Settings, LogOut, Menu, X, CheckCircle, XCircle, AlertCircle, Filter, Search } from 'lucide-react';
-import DashboardLayout from '../../components/DashboardLayout';
+"use client";
+import { useEffect } from "react";
+import React, { useState } from "react";
+import {
+  Calendar,
+  Users,
+  TrendingUp,
+  Plus,
+  Eye,
+  Edit,
+  Trash2,
+  Clock,
+  MapPin,
+  DollarSign,
+  Star,
+  Bell,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Filter,
+  Search,
+} from "lucide-react";
+import DashboardLayout from "../../components/DashboardLayout";
 
 const ProviderPage = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-
   // Mock provider data
   const userInfo = {
     name: "TechSkills Institute",
     email: "contact@techskills.edu",
-    verified: true
+    verified: true,
   };
 
   const providerInfo = {
@@ -20,7 +39,7 @@ const ProviderPage = () => {
     email: "contact@techskills.edu",
     verified: true,
     rating: 4.8,
-    totalReviews: 156
+    totalReviews: 156,
   };
 
   const stats = {
@@ -29,7 +48,7 @@ const ProviderPage = () => {
     pendingApproval: 3,
     totalStudents: 1247,
     monthlyRevenue: 15240,
-    completedEvents: 9
+    completedEvents: 9,
   };
 
   const recentEvents = [
@@ -49,7 +68,7 @@ const ProviderPage = () => {
       approvalStatus: "approved",
       prerequisites: "Basic JavaScript knowledge",
       createdAt: "2025-07-10",
-      expiresAt: "2025-07-24"
+      expiresAt: "2025-07-24",
     },
     {
       id: 2,
@@ -67,7 +86,7 @@ const ProviderPage = () => {
       approvalStatus: "approved",
       prerequisites: "Basic programming knowledge",
       createdAt: "2025-07-05",
-      expiresAt: "2025-07-31"
+      expiresAt: "2025-07-31",
     },
     {
       id: 3,
@@ -85,7 +104,7 @@ const ProviderPage = () => {
       approvalStatus: "approved",
       prerequisites: "None",
       createdAt: "2025-06-28",
-      expiresAt: "2025-07-21"
+      expiresAt: "2025-07-21",
     },
     {
       id: 4,
@@ -103,41 +122,42 @@ const ProviderPage = () => {
       approvalStatus: "pending",
       prerequisites: "Python programming, Statistics basics",
       createdAt: "2025-07-18",
-      expiresAt: "2025-08-14"
-    }
+      expiresAt: "2025-08-14",
+    },
   ];
 
   const inquiries = [
-    { 
-      id: 1, 
-      student: "Priya Sharma", 
+    {
+      id: 1,
+      student: "Priya Sharma",
       studentEmail: "priya.sharma@student.com",
-      event: "React Workshop", 
-      message: "Is this suitable for beginners? I have basic HTML/CSS knowledge but new to React.", 
+      event: "React Workshop",
+      message:
+        "Is this suitable for beginners? I have basic HTML/CSS knowledge but new to React.",
       time: "2 hours ago",
-      unread: true
+      unread: true,
     },
-    { 
-      id: 2, 
-      student: "Rahul Kumar", 
+    {
+      id: 2,
+      student: "Rahul Kumar",
       studentEmail: "rahul.k@gmail.com",
-      event: "Data Science Bootcamp", 
-      message: "What are the prerequisites? Do I need prior experience with Python?", 
+      event: "Data Science Bootcamp",
+      message:
+        "What are the prerequisites? Do I need prior experience with Python?",
       time: "5 hours ago",
-      unread: true
+      unread: true,
     },
-    { 
-      id: 3, 
-      student: "Anita Singh", 
+    {
+      id: 3,
+      student: "Anita Singh",
       studentEmail: "anita.singh@college.edu",
-      event: "UI/UX Masterclass", 
-      message: "Will recordings be available after the session? I might miss some parts due to my schedule.", 
+      event: "UI/UX Masterclass",
+      message:
+        "Will recordings be available after the session? I might miss some parts due to my schedule.",
       time: "1 day ago",
-      unread: false
-    }
+      unread: false,
+    },
   ];
-
-
 
   const StatsCard = ({ icon: Icon, title, value, change, color, subtitle }) => (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -152,8 +172,13 @@ const ProviderPage = () => {
         </div>
         {change && (
           <div className="text-right">
-            <span className={`text-sm font-medium ${change > 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {change > 0 ? '+' : ''}{change}%
+            <span
+              className={`text-sm font-medium ${
+                change > 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {change > 0 ? "+" : ""}
+              {change}%
             </span>
             <p className="text-xs text-gray-500">vs last month</p>
           </div>
@@ -164,19 +189,39 @@ const ProviderPage = () => {
 
   const EventCard = ({ event }) => {
     const getStatusBadge = (status, approvalStatus) => {
-      if (approvalStatus === 'pending') {
-        return <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Pending Approval</span>;
+      if (approvalStatus === "pending") {
+        return (
+          <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+            Pending Approval
+          </span>
+        );
       }
-      
+
       switch (status) {
-        case 'active':
-          return <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Active</span>;
-        case 'full':
-          return <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Full</span>;
-        case 'completed':
-          return <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">Completed</span>;
+        case "active":
+          return (
+            <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+              Active
+            </span>
+          );
+        case "full":
+          return (
+            <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+              Full
+            </span>
+          );
+        case "completed":
+          return (
+            <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+              Completed
+            </span>
+          );
         default:
-          return <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">Draft</span>;
+          return (
+            <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+              Draft
+            </span>
+          );
       }
     };
 
@@ -184,12 +229,14 @@ const ProviderPage = () => {
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {event.title}
+            </h3>
             <p className="text-sm text-gray-600 mt-1">{event.description}</p>
           </div>
           {getStatusBadge(event.status, event.approvalStatus)}
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="flex items-center text-sm text-gray-600">
             <Calendar className="h-4 w-4 mr-2" />
@@ -204,8 +251,7 @@ const ProviderPage = () => {
             {event.location}
           </div>
           <div className="flex items-center text-sm text-gray-600">
-            <DollarSign className="h-4 w-4 mr-2" />
-            ₹{event.price}
+            <DollarSign className="h-4 w-4 mr-2" />₹{event.price}
           </div>
         </div>
 
@@ -215,14 +261,18 @@ const ProviderPage = () => {
               <Users className="h-4 w-4 mr-1" />
               {event.registrations}/{event.capacity} registered
             </div>
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{event.category}</span>
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+              {event.category}
+            </span>
           </div>
         </div>
 
         <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-          <div 
-            className="bg-blue-600 h-2 rounded-full" 
-            style={{ width: `${(event.registrations / event.capacity) * 100}%` }}
+          <div
+            className="bg-blue-600 h-2 rounded-full"
+            style={{
+              width: `${(event.registrations / event.capacity) * 100}%`,
+            }}
           ></div>
         </div>
 
@@ -247,12 +297,18 @@ const ProviderPage = () => {
   };
 
   const InquiryCard = ({ inquiry }) => (
-    <div className={`bg-white p-4 rounded-lg border ${inquiry.unread ? 'border-blue-200 bg-blue-50' : 'border-gray-200'}`}>
+    <div
+      className={`bg-white p-4 rounded-lg border ${
+        inquiry.unread ? "border-blue-200 bg-blue-50" : "border-gray-200"
+      }`}
+    >
       <div className="flex items-start justify-between mb-2">
         <div>
           <h4 className="font-medium text-gray-900">{inquiry.student}</h4>
           <p className="text-sm text-gray-600">{inquiry.studentEmail}</p>
-          <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded mt-1 inline-block">{inquiry.event}</span>
+          <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded mt-1 inline-block">
+            {inquiry.event}
+          </span>
         </div>
         <span className="text-xs text-gray-500">{inquiry.time}</span>
       </div>
@@ -270,12 +326,14 @@ const ProviderPage = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard':
+      case "dashboard":
         return (
           <div>
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Provider Dashboard</h2>
-              
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Provider Dashboard
+              </h2>
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatsCard
                   icon={Calendar}
@@ -314,7 +372,9 @@ const ProviderPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Recent Events</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Recent Events
+                  </h3>
                   <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                     <Plus className="h-4 w-4 mr-2" />
                     Create Event
@@ -326,9 +386,11 @@ const ProviderPage = () => {
                   ))}
                 </div>
               </div>
-              
+
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Inquiries</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Recent Inquiries
+                </h3>
                 <div className="space-y-3">
                   {inquiries.map((inquiry) => (
                     <InquiryCard key={inquiry.id} inquiry={inquiry} />
@@ -339,11 +401,15 @@ const ProviderPage = () => {
           </div>
         );
 
-      case 'events':
-        const filteredEvents = recentEvents.filter(event => {
-          const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                               event.description.toLowerCase().includes(searchTerm.toLowerCase());
-          const matchesFilter = filterStatus === 'all' || event.status === filterStatus || event.approvalStatus === filterStatus;
+      case "events":
+        const filteredEvents = recentEvents.filter((event) => {
+          const matchesSearch =
+            event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            event.description.toLowerCase().includes(searchTerm.toLowerCase());
+          const matchesFilter =
+            filterStatus === "all" ||
+            event.status === filterStatus ||
+            event.approvalStatus === filterStatus;
           return matchesSearch && matchesFilter;
         });
 
@@ -389,14 +455,21 @@ const ProviderPage = () => {
           </div>
         );
 
-      case 'analytics':
+      case "analytics":
         return (
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Analytics & Insights</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Analytics & Insights
+            </h2>
             <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center">
               <TrendingUp className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Analytics Dashboard</h3>
-              <p className="text-gray-600 mb-4">Detailed analytics and insights about your events performance will be displayed here.</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Analytics Dashboard
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Detailed analytics and insights about your events performance
+                will be displayed here.
+              </p>
               <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 View Detailed Analytics
               </button>
@@ -404,10 +477,12 @@ const ProviderPage = () => {
           </div>
         );
 
-      case 'inquiries':
+      case "inquiries":
         return (
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Student Inquiries</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Student Inquiries
+            </h2>
             <div className="space-y-4">
               {inquiries.map((inquiry) => (
                 <InquiryCard key={inquiry.id} inquiry={inquiry} />
