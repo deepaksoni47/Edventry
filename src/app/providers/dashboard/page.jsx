@@ -1,9 +1,11 @@
 'use client'
 import React, { useState } from 'react';
-import { Calendar, Users, TrendingUp, Plus, Eye, Edit, Trash2, Clock, MapPin, DollarSign, Star, Bell, Settings, LogOut, Menu, X, CheckCircle, XCircle, AlertCircle, Filter, Search } from 'lucide-react';
+import { Calendar, Users, TrendingUp, Plus, Eye, Edit, Trash2, Clock, MapPin, DollarSign, Star, Bell, Settings, LogOut, Menu, X, CheckCircle, XCircle, AlertCircle, Filter, Search, BookOpen } from 'lucide-react';
 import DashboardLayout from '../../../components/DashboardLayout';
+import { useRouter } from 'next/navigation';
 
 const ProviderDashboard = () => {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
@@ -15,12 +17,23 @@ const ProviderDashboard = () => {
   };
 
   const stats = {
+    // Events Stats
     totalEvents: 24,
     activeEvents: 12,
     pendingApproval: 3,
+    completedEvents: 9,
+    
+    // Courses Stats
+    totalCourses: 8,
+    activeCourses: 6,
+    draftCourses: 2,
+    completedCourses: 2,
+    
+    // Combined Stats
     totalStudents: 1247,
     monthlyRevenue: 15240,
-    completedEvents: 9
+    courseEnrollments: 456,
+    eventRegistrations: 791
   };
 
   const recentEvents = [
@@ -95,6 +108,54 @@ const ProviderDashboard = () => {
       prerequisites: "Python programming, Statistics basics",
       createdAt: "2025-07-18",
       expiresAt: "2025-08-14"
+    }
+  ];
+
+  const recentCourses = [
+    {
+      id: 1,
+      title: "Complete Web Development Bootcamp",
+      description: "Learn HTML, CSS, JavaScript, React, and Node.js from scratch to advanced level",
+      category: "Web Development",
+      level: "Beginner to Advanced",
+      duration: "12 weeks",
+      lessons: 48,
+      students: 156,
+      price: 2999,
+      status: "active",
+      rating: 4.8,
+      totalReviews: 89,
+      createdAt: "2025-01-10"
+    },
+    {
+      id: 2,
+      title: "Data Science Fundamentals",
+      description: "Master Python, Pandas, NumPy, and Machine Learning basics",
+      category: "Data Science",
+      level: "Intermediate",
+      duration: "8 weeks",
+      lessons: 32,
+      students: 98,
+      price: 2499,
+      status: "active",
+      rating: 4.9,
+      totalReviews: 67,
+      createdAt: "2025-01-05"
+    },
+    {
+      id: 3,
+      title: "UI/UX Design Masterclass",
+      description: "Learn design principles, Figma, and user experience design",
+      category: "Design",
+      level: "Beginner",
+      duration: "6 weeks",
+      lessons: 24,
+      students: 73,
+      price: 1999,
+      status: "draft",
+      rating: 0,
+      totalReviews: 0,
+      createdAt: "2025-01-18"
     }
   ];
 
@@ -227,6 +288,63 @@ const ProviderDashboard = () => {
     );
   };
 
+  const CourseCard = ({ course }) => {
+    const getStatusBadge = (status) => {
+      switch (status) {
+        case 'active':
+          return <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Active</span>;
+        case 'draft':
+          return <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Draft</span>;
+        case 'archived':
+          return <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">Archived</span>;
+        default:
+          return <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">{status}</span>;
+      }
+    };
+
+    return (
+      <div className="bg-white p-4 rounded-lg border border-gray-100">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            <h4 className="font-medium text-gray-900 mb-1">{course.title}</h4>
+            <p className="text-sm text-gray-600 mb-2">{course.description}</p>
+            <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
+              <span>{course.category}</span>
+              <span>•</span>
+              <span>{course.level}</span>
+              <span>•</span>
+              <span>{course.duration}</span>
+            </div>
+            <div className="flex items-center space-x-4 text-xs text-gray-500">
+              <span>{course.lessons} lessons</span>
+              <span>•</span>
+              <span>{course.students} students</span>
+              <span>•</span>
+              <span>₹{course.price}</span>
+            </div>
+          </div>
+          <div className="flex flex-col items-end space-y-2">
+            {getStatusBadge(course.status)}
+            {course.rating > 0 && (
+              <div className="flex items-center text-xs">
+                <Star className="h-3 w-3 text-yellow-500 mr-1" />
+                {course.rating} ({course.totalReviews})
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700">
+            View Details
+          </button>
+          <button className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
+            Edit
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const InquiryCard = ({ inquiry }) => (
     <div className="bg-white p-4 rounded-lg border border-gray-100">
       <div className="flex items-start justify-between mb-3">
@@ -272,19 +390,20 @@ const ProviderDashboard = () => {
             subtitle={`${stats.activeEvents} active`}
           />
           <StatsCard
-            icon={AlertCircle}
-            title="Pending Approval"
-            value={stats.pendingApproval}
-            color="bg-yellow-500"
-            subtitle="Awaiting admin review"
+            icon={BookOpen}
+            title="Total Courses"
+            value={stats.totalCourses}
+            change={8}
+            color="bg-indigo-500"
+            subtitle={`${stats.activeCourses} active`}
           />
           <StatsCard
             icon={Users}
-            title="Total Students Reached"
+            title="Total Students"
             value={stats.totalStudents}
             change={18}
             color="bg-green-500"
-            subtitle="Across all events"
+            subtitle={`Events: ${stats.eventRegistrations} | Courses: ${stats.courseEnrollments}`}
           />
           <StatsCard
             icon={DollarSign}
@@ -297,28 +416,54 @@ const ProviderDashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
+      <div className="space-y-8">
+        {/* Events Section */}
+        <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Recent Events</h3>
-            <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <button 
+              onClick={() => router.push('/providers/events/create')}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Create Event
             </button>
           </div>
-          <div className="space-y-4">
-            {recentEvents.slice(0, 3).map((event) => (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {recentEvents.slice(0, 4).map((event) => (
               <EventCard key={event.id} event={event} />
             ))}
           </div>
         </div>
-        
+
+        {/* Courses Section */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Inquiries</h3>
-          <div className="space-y-3">
-            {inquiries.map((inquiry) => (
-              <InquiryCard key={inquiry.id} inquiry={inquiry} />
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Recent Courses</h3>
+            <button 
+              onClick={() => router.push('/providers/courses/create')}
+              className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Course
+            </button>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {recentCourses.map((course) => (
+              <CourseCard key={course.id} course={course} />
             ))}
+          </div>
+        </div>
+
+        {/* Inquiries Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Inquiries</h3>
+            <div className="space-y-3">
+              {inquiries.map((inquiry) => (
+                <InquiryCard key={inquiry.id} inquiry={inquiry} />
+              ))}
+            </div>
           </div>
         </div>
       </div>
