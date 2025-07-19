@@ -60,7 +60,7 @@ const CourseListingPage = () => {
 
         const res = await fetch(query);
         const data = await res.json();
-        setCourses(data);
+        setCourses(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch courses:", err);
       } finally {
@@ -71,38 +71,42 @@ const CourseListingPage = () => {
     fetchCourses();
   }, [selectedCategory]);
 
-  const filteredCourses = courses
-    .filter((course) => {
-      const matchesSearch =
-        course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.instructor?.name
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase());
+  const filteredCourses = Array.isArray(courses)
+    ? courses
+        .filter((course) => {
+          const matchesSearch =
+            course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            course.description
+              ?.toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            course.instructor?.name
+              ?.toLowerCase()
+              .includes(searchTerm.toLowerCase());
 
-      const matchesLevel =
-        selectedLevel === "all" ||
-        course.level?.toLowerCase() === selectedLevel;
+          const matchesLevel =
+            selectedLevel === "all" ||
+            course.level?.toLowerCase() === selectedLevel;
 
-      return matchesSearch && matchesLevel;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "rating":
-          return (b.rating || 0) - (a.rating || 0);
-        case "newest":
-          return new Date(b.createdAt) - new Date(a.createdAt);
-        case "price-low":
-          return a.price - b.price;
-        case "price-high":
-          return b.price - a.price;
-        default:
-          return (
-            (b.studentsEnrolled?.length || 0) -
-            (a.studentsEnrolled?.length || 0)
-          );
-      }
-    });
+          return matchesSearch && matchesLevel;
+        })
+        .sort((a, b) => {
+          switch (sortBy) {
+            case "rating":
+              return (b.rating || 0) - (a.rating || 0);
+            case "newest":
+              return new Date(b.createdAt) - new Date(a.createdAt);
+            case "price-low":
+              return a.price - b.price;
+            case "price-high":
+              return b.price - a.price;
+            default:
+              return (
+                (b.studentsEnrolled?.length || 0) -
+                (a.studentsEnrolled?.length || 0)
+              );
+          }
+        })
+    : [];
 
   const CourseCard = ({ course }) => (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
