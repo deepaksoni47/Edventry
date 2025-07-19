@@ -4,13 +4,13 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
+// Login Route
 export async function POST(req) {
+  console.log("🛡️ Middleware is running...");
   try {
     await connectDB();
 
-    const body = await req.json(); // ✅ FIXED
+    const body = await req.json();
     const { email, password } = body;
 
     if (!email || !password) {
@@ -21,7 +21,6 @@ export async function POST(req) {
     }
 
     const user = await User.findOne({ email });
-
     if (!user) {
       return NextResponse.json(
         { error: "Invalid email or password." },
@@ -30,7 +29,6 @@ export async function POST(req) {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
       return NextResponse.json(
         { error: "Invalid email or password." },
@@ -41,7 +39,7 @@ export async function POST(req) {
     const JWT_SECRET = process.env.JWT_SECRET;
     if (!JWT_SECRET) {
       return NextResponse.json(
-        { error: "JWT_SECRET not defined in environment." },
+        { error: "JWT_SECRET not defined" },
         { status: 500 }
       );
     }
@@ -54,11 +52,10 @@ export async function POST(req) {
       },
       JWT_SECRET,
       { expiresIn: "7d" }
-    );
+    ); // 🧠 Set the cookie
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: "Login successful!",
-      token,
       user: {
         id: user._id,
         name: user.name,
@@ -66,6 +63,15 @@ export async function POST(req) {
         role: user.role,
       },
     });
+
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+    });
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
