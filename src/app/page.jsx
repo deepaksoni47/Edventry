@@ -94,6 +94,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
             Connect Students with Top Educational Institutes
+            
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Discover thousands of courses, workshops, and events from leading educational providers worldwide.
