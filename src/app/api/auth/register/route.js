@@ -1,24 +1,19 @@
 import connectDB from "@/lib/db";
 import User from "@/models/User";
+import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
-
 // POST /api/register
 export async function POST(req) {
   try {
     await connectDB();
-
     const body = await req.json();
     const { name, email, password, role } = body;
-
-    // Basic validation
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: "All fields are required." },
         { status: 400 }
       );
     }
-
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
@@ -26,17 +21,13 @@ export async function POST(req) {
         { status: 409 }
       );
     }
-
-    // Create user
     const newUser = new User({
       name,
       email,
-      password,
+      password: password,
       role: role || "student",
     });
-
     await newUser.save();
-
     return NextResponse.json(
       { message: "User registered successfully!" },
       { status: 201 }

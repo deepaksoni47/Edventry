@@ -10,7 +10,8 @@ export async function POST(req) {
   try {
     await connectDB();
 
-    const { email, password } = await req.json();
+    const body = await req.json(); // ✅ FIXED
+    const { email, password } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -37,6 +38,7 @@ export async function POST(req) {
       );
     }
 
+    const JWT_SECRET = process.env.JWT_SECRET;
     if (!JWT_SECRET) {
       return NextResponse.json(
         { error: "JWT_SECRET not defined in environment." },
