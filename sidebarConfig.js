@@ -132,6 +132,20 @@ export const sidebarConfig = {
         badge: null
       },
       {
+        id: 'courses',
+        label: 'My Courses',
+        icon: BookOpen,
+        href: '/providers/courses',
+        badge: { count: 2, color: 'blue', label: 'Active' }
+      },
+      {
+        id: 'create-course',
+        label: 'Create Course',
+        icon: Plus,
+        href: '/providers/courses/create',
+        badge: null
+      },
+      {
         id: 'analytics',
         label: 'Analytics',
         icon: TrendingUp,
@@ -144,13 +158,6 @@ export const sidebarConfig = {
         icon: MessageSquare,
         href: '/providers/inquiries',
         badge: { count: 5, color: 'red' }
-      },
-      {
-        id: 'earnings',
-        label: 'Earnings',
-        icon: CreditCard,
-        href: '/providers/earnings',
-        badge: null
       }
     ],
     bottomNavigation: [
