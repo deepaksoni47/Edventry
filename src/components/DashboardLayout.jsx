@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Menu, Bell, User } from 'lucide-react';
 import Sidebar from './Sidebar';
+import NarrowFooter from './NarrowFooter';
 
 const DashboardLayout = ({ 
   children, 
@@ -29,7 +30,7 @@ const DashboardLayout = ({
       />
 
       {/* Main Content */}
-      <div className="flex-1 lg:ml-0">
+      <div className="flex-1 lg:ml-64">
         {/* Top Header */}
         <header className="bg-white shadow-sm border-b border-gray-200 sticky top-16 z-50">
           <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
@@ -80,10 +81,13 @@ const DashboardLayout = ({
         </header>
 
         {/* Page Content */}
-        <main className={`p-4 sm:p-6 lg:p-8 ${className}`}>
+        <main className={`p-4 sm:p-6 lg:p-8 pb-24 ${className}`}>
           {children}
         </main>
       </div>
+
+      {/* Narrow Footer */}
+      <NarrowFooter />
     </div>
   );
 };
