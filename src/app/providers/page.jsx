@@ -1,14 +1,20 @@
 'use client'
 import React, { useState } from 'react';
 import { Calendar, Users, TrendingUp, Plus, Eye, Edit, Trash2, Clock, MapPin, DollarSign, Star, Bell, Settings, LogOut, Menu, X, CheckCircle, XCircle, AlertCircle, Filter, Search } from 'lucide-react';
+import DashboardLayout from '../../components/DashboardLayout';
 
 const ProviderPage = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
   // Mock provider data
+  const userInfo = {
+    name: "TechSkills Institute",
+    email: "contact@techskills.edu",
+    verified: true
+  };
+
   const providerInfo = {
     name: "TechSkills Institute",
     email: "contact@techskills.edu",
@@ -131,94 +137,7 @@ const ProviderPage = () => {
     }
   ];
 
-  const Sidebar = () => (
-    <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
-      <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-blue-600">EduConnect</h1>
-        <button
-          onClick={() => setSidebarOpen(false)}
-          className="lg:hidden p-1 rounded-md hover:bg-gray-100"
-        >
-          <X className="h-5 w-5" />
-        </button>
-      </div>
-      
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-            <span className="text-white font-semibold text-sm">TS</span>
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-900">{providerInfo.name}</p>
-            <div className="flex items-center space-x-1">
-              {providerInfo.verified && <CheckCircle className="h-3 w-3 text-green-500" />}
-              <span className="text-xs text-gray-500">Verified Provider</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <nav className="mt-6 px-3">
-        <div className="space-y-1">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg ${
-              activeTab === 'dashboard' ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <TrendingUp className="mr-3 h-5 w-5" />
-            Dashboard
-          </button>
-          <button
-            onClick={() => setActiveTab('events')}
-            className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg ${
-              activeTab === 'events' ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <Calendar className="mr-3 h-5 w-5" />
-            My Events
-            {stats.pendingApproval > 0 && (
-              <span className="ml-auto bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded-full">
-                {stats.pendingApproval}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg ${
-              activeTab === 'analytics' ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <TrendingUp className="mr-3 h-5 w-5" />
-            Analytics
-          </button>
-          <button
-            onClick={() => setActiveTab('inquiries')}
-            className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg ${
-              activeTab === 'inquiries' ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <Bell className="mr-3 h-5 w-5" />
-            Student Inquiries
-            <span className="ml-auto bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full">
-              {inquiries.filter(i => i.unread).length}
-            </span>
-          </button>
-        </div>
-        
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <button className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">
-            <Settings className="mr-3 h-5 w-5" />
-            Settings
-          </button>
-          <button className="w-full flex items-center px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50">
-            <LogOut className="mr-3 h-5 w-5" />
-            Sign Out
-          </button>
-        </div>
-      </nav>
-    </div>
-  );
+
 
   const StatsCard = ({ icon: Icon, title, value, change, color, subtitle }) => (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -503,31 +422,14 @@ const ProviderPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-      
-      <div className="flex-1 lg:ml-0">
-        <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-md hover:bg-gray-100"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-        </div>
-        
-        <main className="p-6">
-          {renderContent()}
-        </main>
-      </div>
-      
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 lg:hidden z-40"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-    </div>
+    <DashboardLayout
+      userType="provider"
+      userInfo={userInfo}
+      pageTitle="Provider Dashboard"
+      pageDescription="Manage your events and track performance"
+    >
+      {renderContent()}
+    </DashboardLayout>
   );
 };
 
