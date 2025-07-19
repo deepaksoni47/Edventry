@@ -1,6 +1,7 @@
 // GET /api/courses/[id]
 import Course from "@/models/Course";
-import { connectDB } from "@/utils/db";
+import Review from "@/models/Review";
+import connectDB from "@/lib/db";
 
 export async function GET(req, { params }) {
   await connectDB();
