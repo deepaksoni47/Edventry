@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import { BookOpen, Calendar, Award, Heart, TrendingUp, Users, Star, CheckCircle, Play, Clock } from 'lucide-react';
-import DashboardLayout from '../../../components/DashboardLayout';
+import DashboardLayout from '../../components/DashboardLayout';
 
 const StudentDashboard = () => {
   // Mock student data
@@ -354,4 +354,4 @@ const StudentDashboard = () => {
   );
 };
 
-export default StudentDashboard;
+export default StudentDashboard; 

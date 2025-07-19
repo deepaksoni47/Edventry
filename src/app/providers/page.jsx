@@ -1,5 +1,4 @@
 "use client";
-import { useEffect } from "react";
 import React, { useState } from "react";
 import {
   Calendar,
@@ -23,10 +22,16 @@ import {
   AlertCircle,
   Filter,
   Search,
+  BookOpen,
 } from "lucide-react";
 import DashboardLayout from "../../components/DashboardLayout";
+import { useRouter } from "next/navigation";
 
-const ProviderPage = () => {
+const ProviderDashboard = () => {
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+
   // Mock provider data
   const userInfo = {
     name: "TechSkills Institute",
@@ -34,21 +39,24 @@ const ProviderPage = () => {
     verified: true,
   };
 
-  const providerInfo = {
-    name: "TechSkills Institute",
-    email: "contact@techskills.edu",
-    verified: true,
-    rating: 4.8,
-    totalReviews: 156,
-  };
-
   const stats = {
+    // Events Stats
     totalEvents: 24,
     activeEvents: 12,
     pendingApproval: 3,
+    completedEvents: 9,
+
+    // Courses Stats
+    totalCourses: 8,
+    activeCourses: 6,
+    draftCourses: 2,
+    completedCourses: 2,
+
+    // Combined Stats
     totalStudents: 1247,
     monthlyRevenue: 15240,
-    completedEvents: 9,
+    courseEnrollments: 456,
+    eventRegistrations: 791,
   };
 
   const recentEvents = [
@@ -123,6 +131,55 @@ const ProviderPage = () => {
       prerequisites: "Python programming, Statistics basics",
       createdAt: "2025-07-18",
       expiresAt: "2025-08-14",
+    },
+  ];
+
+  const recentCourses = [
+    {
+      id: 1,
+      title: "Complete Web Development Bootcamp",
+      description:
+        "Learn HTML, CSS, JavaScript, React, and Node.js from scratch to advanced level",
+      category: "Web Development",
+      level: "Beginner to Advanced",
+      duration: "12 weeks",
+      lessons: 48,
+      students: 156,
+      price: 2999,
+      status: "active",
+      rating: 4.8,
+      totalReviews: 89,
+      createdAt: "2025-01-10",
+    },
+    {
+      id: 2,
+      title: "Data Science Fundamentals",
+      description: "Master Python, Pandas, NumPy, and Machine Learning basics",
+      category: "Data Science",
+      level: "Intermediate",
+      duration: "8 weeks",
+      lessons: 32,
+      students: 98,
+      price: 2499,
+      status: "active",
+      rating: 4.9,
+      totalReviews: 67,
+      createdAt: "2025-01-05",
+    },
+    {
+      id: 3,
+      title: "UI/UX Design Masterclass",
+      description: "Learn design principles, Figma, and user experience design",
+      category: "Design",
+      level: "Beginner",
+      duration: "6 weeks",
+      lessons: 24,
+      students: 73,
+      price: 1999,
+      status: "draft",
+      rating: 0,
+      totalReviews: 0,
+      createdAt: "2025-01-18",
     },
   ];
 
@@ -256,39 +313,114 @@ const ProviderPage = () => {
         </div>
 
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center text-sm text-gray-600">
-              <Users className="h-4 w-4 mr-1" />
-              {event.registrations}/{event.capacity} registered
-            </div>
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-              {event.category}
-            </span>
+          <div className="flex items-center text-sm text-gray-600">
+            <Users className="h-4 w-4 mr-2" />
+            {event.registrations}/{event.capacity} registered
           </div>
-        </div>
-
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-          <div
-            className="bg-blue-600 h-2 rounded-full"
-            style={{
-              width: `${(event.registrations / event.capacity) * 100}%`,
-            }}
-          ></div>
+          <div className="flex items-center text-sm text-gray-600">
+            <span className="text-gray-500">{event.category}</span>
+          </div>
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="text-xs text-gray-500">
-            Expires: {event.expiresAt} | Created: {event.createdAt}
-          </div>
           <div className="flex items-center space-x-2">
-            <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
-              <Eye className="h-4 w-4" />
+            <button
+              onClick={() => router.push(`/providers/events/${event.id}`)}
+              className="flex items-center px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg"
+            >
+              <Eye className="h-4 w-4 mr-1" />
+              View Details
             </button>
-            <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg">
-              <Edit className="h-4 w-4" />
+            <button className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+              <Edit className="h-4 w-4 mr-1" />
+              Edit
             </button>
-            <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
-              <Trash2 className="h-4 w-4" />
+          </div>
+          <button className="flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg">
+            <Trash2 className="h-4 w-4 mr-1" />
+            Delete
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const CourseCard = ({ course }) => {
+    const getStatusBadge = (status) => {
+      switch (status) {
+        case "active":
+          return (
+            <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+              Active
+            </span>
+          );
+        case "draft":
+          return (
+            <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+              Draft
+            </span>
+          );
+        case "completed":
+          return (
+            <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+              Completed
+            </span>
+          );
+        default:
+          return (
+            <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+              Inactive
+            </span>
+          );
+      }
+    };
+
+    return (
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {course.title}
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">{course.description}</p>
+          </div>
+          {getStatusBadge(course.status)}
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="flex items-center text-sm text-gray-600">
+            <BookOpen className="h-4 w-4 mr-2" />
+            {course.duration} • {course.lessons} lessons
+          </div>
+          <div className="flex items-center text-sm text-gray-600">
+            <Users className="h-4 w-4 mr-2" />
+            {course.students} students
+          </div>
+          <div className="flex items-center text-sm text-gray-600">
+            <DollarSign className="h-4 w-4 mr-2" />₹{course.price}
+          </div>
+          <div className="flex items-center text-sm text-gray-600">
+            <Star className="h-4 w-4 mr-2 text-yellow-500" />
+            {course.rating > 0 ? course.rating : "No ratings"} (
+            {course.totalReviews})
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-500">{course.category}</span>
+            <span className="text-gray-300">•</span>
+            <span className="text-sm text-gray-500">{course.level}</span>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <button className="flex items-center px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg">
+              <Eye className="h-4 w-4 mr-1" />
+              View
+            </button>
+            <button className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+              <Edit className="h-4 w-4 mr-1" />
+              Edit
             </button>
           </div>
         </div>
@@ -297,215 +429,159 @@ const ProviderPage = () => {
   };
 
   const InquiryCard = ({ inquiry }) => (
-    <div
-      className={`bg-white p-4 rounded-lg border ${
-        inquiry.unread ? "border-blue-200 bg-blue-50" : "border-gray-200"
-      }`}
-    >
-      <div className="flex items-start justify-between mb-2">
+    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+      <div className="flex items-start justify-between mb-3">
         <div>
-          <h4 className="font-medium text-gray-900">{inquiry.student}</h4>
-          <p className="text-sm text-gray-600">{inquiry.studentEmail}</p>
-          <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded mt-1 inline-block">
-            {inquiry.event}
-          </span>
+          <h4 className="font-semibold text-gray-900 text-sm">
+            {inquiry.student}
+          </h4>
+          <p className="text-xs text-gray-500">{inquiry.studentEmail}</p>
         </div>
-        <span className="text-xs text-gray-500">{inquiry.time}</span>
+        <div className="flex items-center space-x-2">
+          {inquiry.unread && (
+            <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+          )}
+          <span className="text-xs text-gray-500">{inquiry.time}</span>
+        </div>
       </div>
-      <p className="text-sm text-gray-700 mb-3">{inquiry.message}</p>
+      <p className="text-sm text-gray-600 mb-2">
+        <span className="font-medium">Event:</span> {inquiry.event}
+      </p>
+      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+        {inquiry.message}
+      </p>
       <div className="flex items-center space-x-2">
-        <button className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700">
+        <button className="flex items-center px-3 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded">
           Reply
         </button>
-        <button className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
-          Mark as Read
+        <button className="flex items-center px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded">
+          View Details
         </button>
       </div>
     </div>
   );
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case "dashboard":
-        return (
-          <div>
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Provider Dashboard
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatsCard
-                  icon={Calendar}
-                  title="Total Events"
-                  value={stats.totalEvents}
-                  change={12}
-                  color="bg-blue-500"
-                  subtitle={`${stats.activeEvents} active`}
-                />
-                <StatsCard
-                  icon={AlertCircle}
-                  title="Pending Approval"
-                  value={stats.pendingApproval}
-                  color="bg-yellow-500"
-                  subtitle="Awaiting admin review"
-                />
-                <StatsCard
-                  icon={Users}
-                  title="Total Students Reached"
-                  value={stats.totalStudents}
-                  change={18}
-                  color="bg-green-500"
-                  subtitle="Across all events"
-                />
-                <StatsCard
-                  icon={DollarSign}
-                  title="Monthly Revenue"
-                  value={`₹${stats.monthlyRevenue.toLocaleString()}`}
-                  change={25}
-                  color="bg-purple-500"
-                  subtitle="This month"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Recent Events
-                  </h3>
-                  <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Event
-                  </button>
-                </div>
-                <div className="space-y-4">
-                  {recentEvents.slice(0, 3).map((event) => (
-                    <EventCard key={event.id} event={event} />
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Recent Inquiries
-                </h3>
-                <div className="space-y-3">
-                  {inquiries.map((inquiry) => (
-                    <InquiryCard key={inquiry.id} inquiry={inquiry} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case "events":
-        const filteredEvents = recentEvents.filter((event) => {
-          const matchesSearch =
-            event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            event.description.toLowerCase().includes(searchTerm.toLowerCase());
-          const matchesFilter =
-            filterStatus === "all" ||
-            event.status === filterStatus ||
-            event.approvalStatus === filterStatus;
-          return matchesSearch && matchesFilter;
-        });
-
-        return (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">My Events</h2>
-              <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                <Plus className="h-4 w-4 mr-2" />
-                Create New Event
-              </button>
-            </div>
-
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search events..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-                />
-              </div>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="pending">Pending Approval</option>
-                <option value="full">Full</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6">
-              {filteredEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </div>
-          </div>
-        );
-
-      case "analytics":
-        return (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Analytics & Insights
-            </h2>
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center">
-              <TrendingUp className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Analytics Dashboard
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Detailed analytics and insights about your events performance
-                will be displayed here.
-              </p>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                View Detailed Analytics
-              </button>
-            </div>
-          </div>
-        );
-
-      case "inquiries":
-        return (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Student Inquiries
-            </h2>
-            <div className="space-y-4">
-              {inquiries.map((inquiry) => (
-                <InquiryCard key={inquiry.id} inquiry={inquiry} />
-              ))}
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
-
   return (
     <DashboardLayout
       userType="provider"
       userInfo={userInfo}
-      pageTitle="Provider Dashboard"
-      pageDescription="Manage your events and track performance"
+      pageTitle="Dashboard"
+      pageDescription="Welcome back! Here's your overview"
     >
-      {renderContent()}
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatsCard
+          icon={Calendar}
+          title="Total Events"
+          value={stats.totalEvents}
+          change={12}
+          color="bg-blue-500"
+          subtitle={`${stats.activeEvents} active, ${stats.pendingApproval} pending`}
+        />
+        <StatsCard
+          icon={BookOpen}
+          title="Total Courses"
+          value={stats.totalCourses}
+          change={8}
+          color="bg-green-500"
+          subtitle={`${stats.activeCourses} active, ${stats.draftCourses} draft`}
+        />
+        <StatsCard
+          icon={Users}
+          title="Total Students"
+          value={stats.totalStudents}
+          change={15}
+          color="bg-purple-500"
+          subtitle={`${stats.courseEnrollments} course enrollments`}
+        />
+        <StatsCard
+          icon={TrendingUp}
+          title="Monthly Revenue"
+          value={`₹${stats.monthlyRevenue.toLocaleString()}`}
+          change={23}
+          color="bg-yellow-500"
+          subtitle={`${stats.eventRegistrations} event registrations`}
+        />
+      </div>
+
+      {/* Quick Actions */}
+      <div className="flex items-center space-x-4 mb-8">
+        <button
+          onClick={() => router.push("/providers/events/create")}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Create Event
+        </button>
+        <button
+          onClick={() => router.push("/providers/courses/create")}
+          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Create Course
+        </button>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Recent Events */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900">Recent Events</h2>
+            <a
+              href="/providers/events"
+              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+            >
+              View All →
+            </a>
+          </div>
+          <div className="space-y-4">
+            {recentEvents.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Courses */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900">Recent Courses</h2>
+            <a
+              href="/providers/courses"
+              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+            >
+              View All →
+            </a>
+          </div>
+          <div className="space-y-4">
+            {recentCourses.map((course) => (
+              <CourseCard key={course.id} course={course} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Inquiries */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-gray-900">
+            Recent Student Inquiries
+          </h2>
+          <a
+            href="/providers/inquiries"
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            View All →
+          </a>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {inquiries.map((inquiry) => (
+            <InquiryCard key={inquiry.id} inquiry={inquiry} />
+          ))}
+        </div>
+      </div>
     </DashboardLayout>
   );
 };
 
-export default ProviderPage;
+export default ProviderDashboard;

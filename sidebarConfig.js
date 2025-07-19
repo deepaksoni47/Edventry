@@ -23,7 +23,8 @@ import {
   Database,
   Activity,
   Target,
-  Zap
+  Zap,
+  Heart
 } from 'lucide-react';
 
 export const sidebarConfig = {
@@ -40,39 +41,32 @@ export const sidebarConfig = {
         badge: null
       },
       {
-        id: 'events',
-        label: 'Browse Events',
-        icon: Calendar,
-        href: '/student/events',
-        badge: null
+        id: 'courses',
+        label: 'My Courses',
+        icon: BookOpen,
+        href: '/student/courses',
+        badge: { count: 4, color: 'blue', label: 'Active' }
       },
       {
-        id: 'my-events',
+        id: 'events',
         label: 'My Events',
-        icon: BookOpen,
-        href: '/student/my-events',
-        badge: null
+        icon: Calendar,
+        href: '/student/events',
+        badge: { count: 2, color: 'green', label: 'Upcoming' }
       },
       {
         id: 'certificates',
-        label: 'Certificates',
+        label: 'My Certificates',
         icon: Award,
         href: '/student/certificates',
-        badge: null
+        badge: { count: 3, color: 'purple' }
       },
       {
-        id: 'reviews',
-        label: 'My Reviews',
-        icon: Star,
-        href: '/student/reviews',
+        id: 'wishlist',
+        label: 'Wishlist',
+        icon: Heart,
+        href: '/student/wishlist',
         badge: null
-      },
-      {
-        id: 'notifications',
-        label: 'Notifications',
-        icon: Bell,
-        href: '/student/notifications',
-        badge: { count: 3, color: 'red' }
       }
     ],
     bottomNavigation: [
