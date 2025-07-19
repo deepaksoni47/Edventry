@@ -1,26 +1,31 @@
 'use client'
-import React, { useState } from 'react';
-import { BookOpen, Upload, Plus, X, Save, Eye } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { BookOpen, Upload, Plus, X, Save, Eye, AlertCircle, CheckCircle } from 'lucide-react';
 import DashboardLayout from '../../../../components/DashboardLayout';
+import { useRouter } from 'next/navigation';
 
 const CreateCourse = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: '',
-    level: '',
-    duration: '',
-    price: '',
-    thumbnail: null,
-    prerequisites: '',
-    learningOutcomes: [''],
+    categoryId: '',
+    price: 0,
+    thumbnail: '',
+    tags: [],
     curriculum: [
       {
         week: 1,
         title: '',
         description: '',
         lessons: [
-          { title: '', duration: '', type: 'video' }
+          { 
+            title: '', 
+            content: '', 
+            videoUrl: '', 
+            duration: 0, 
+            isFree: false 
+          }
         ]
       }
     ]
@@ -28,64 +33,55 @@ const CreateCourse = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
 
-  // Mock provider data
+  // Mock provider data - in real app, get from auth context
   const userInfo = {
     name: "TechSkills Institute",
     email: "contact@techskills.edu",
-    verified: true
+    verified: true,
+    _id: "mock-instructor-id" // This would come from auth context
   };
 
-  const categories = [
-    "Web Development",
-    "Data Science",
-    "Mobile Development",
-    "Design",
-    "Programming",
-    "Business",
-    "Marketing",
-    "Finance",
-    "Health & Fitness",
-    "Music",
-    "Photography",
-    "Other"
-  ];
+  // Fetch categories on component mount
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
-  const levels = [
-    "Beginner",
-    "Intermediate",
-    "Advanced",
-    "Beginner to Advanced"
-  ];
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: ''
+      }));
+    }
   };
 
-  const handleLearningOutcomeChange = (index, value) => {
-    const newOutcomes = [...formData.learningOutcomes];
-    newOutcomes[index] = value;
+  const handleTagsChange = (value) => {
+    const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
     setFormData(prev => ({
       ...prev,
-      learningOutcomes: newOutcomes
-    }));
-  };
-
-  const addLearningOutcome = () => {
-    setFormData(prev => ({
-      ...prev,
-      learningOutcomes: [...prev.learningOutcomes, '']
-    }));
-  };
-
-  const removeLearningOutcome = (index) => {
-    const newOutcomes = formData.learningOutcomes.filter((_, i) => i !== index);
-    setFormData(prev => ({
-      ...prev,
-      learningOutcomes: newOutcomes
+      tags
     }));
   };
 
@@ -107,7 +103,13 @@ const CreateCourse = () => {
       title: '',
       description: '',
       lessons: [
-        { title: '', duration: '', type: 'video' }
+        { 
+          title: '', 
+          content: '', 
+          videoUrl: '', 
+          duration: 0, 
+          isFree: false 
+        }
       ]
     };
     setFormData(prev => ({
@@ -120,8 +122,10 @@ const CreateCourse = () => {
     const newCurriculum = [...formData.curriculum];
     newCurriculum[weekIndex].lessons.push({
       title: '',
-      duration: '',
-      type: 'video'
+      content: '',
+      videoUrl: '',
+      duration: 0,
+      isFree: false
     });
     setFormData(prev => ({
       ...prev,
@@ -141,26 +145,97 @@ const CreateCourse = () => {
     }));
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Title validation
+    if (!formData.title.trim()) {
+      newErrors.title = 'Course title is required';
+    } else if (formData.title.trim().length < 5) {
+      newErrors.title = 'Title must be at least 5 characters';
+    }
+
+    // Description validation
+    if (!formData.description.trim()) {
+      newErrors.description = 'Course description is required';
+    } else if (formData.description.trim().length < 20) {
+      newErrors.description = 'Description must be at least 20 characters';
+    }
+
+    // Category validation
+    if (!formData.categoryId) {
+      newErrors.categoryId = 'Please select a category';
+    }
+
+    // Price validation
+    if (formData.price < 0) {
+      newErrors.price = 'Price cannot be negative';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    console.log('Course data:', formData);
-    setIsSubmitting(false);
-    
-    // Here you would typically redirect to the course page or show success message
-    alert('Course created successfully!');
+    setErrors({});
+    setSuccessMessage('');
+
+    try {
+      const courseData = {
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        price: parseFloat(formData.price) || 0,
+        categoryId: formData.categoryId,
+        thumbnail: formData.thumbnail,
+        tags: formData.tags,
+        curriculum: formData.curriculum,
+        instructorId: userInfo._id
+      };
+
+      const response = await fetch('/api/courses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(courseData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setSuccessMessage('Course created successfully!');
+        console.log('Course created:', result.course);
+        
+        // Redirect to course page after 2 seconds
+        setTimeout(() => {
+          router.push(`/providers/courses/${result.course._id}`);
+        }, 2000);
+      } else {
+        setErrors({ submit: result.error || 'Failed to create course' });
+      }
+    } catch (error) {
+      console.error('Error creating course:', error);
+      setErrors({ submit: 'Network error. Please try again.' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // In a real app, you would upload to cloud storage and get URL
+      // For now, we'll just store the file name
       setFormData(prev => ({
         ...prev,
-        thumbnail: file
+        thumbnail: file.name
       }));
     }
   };
@@ -210,6 +285,25 @@ const CreateCourse = () => {
           </div>
         </div>
 
+        {/* Success and Error Messages */}
+        {successMessage && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center">
+              <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+              <p className="text-green-800">{successMessage}</p>
+            </div>
+          </div>
+        )}
+
+        {errors.submit && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center">
+              <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+              <p className="text-red-800">{errors.submit}</p>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Step 1: Basic Information */}
           <FormStep step={1} title="Basic Information" isActive={currentStep === 1}>
@@ -222,10 +316,18 @@ const CreateCourse = () => {
                   type="text"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.title ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Enter course title"
                   required
                 />
+                {errors.title && (
+                  <p className="mt-1 text-sm text-red-600 flex items-center">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    {errors.title}
+                  </p>
+                )}
               </div>
 
               <div className="md:col-span-2">
@@ -236,10 +338,18 @@ const CreateCourse = () => {
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.description ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Describe what students will learn in this course"
                   required
                 />
+                {errors.description && (
+                  <p className="mt-1 text-sm text-red-600 flex items-center">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    {errors.description}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -247,47 +357,26 @@ const CreateCourse = () => {
                   Category *
                 </label>
                 <select
-                  value={formData.category}
-                  onChange={(e) => handleInputChange('category', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={formData.categoryId}
+                  onChange={(e) => handleInputChange('categoryId', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.categoryId ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 >
                   <option value="">Select category</option>
                   {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
+                    <option key={category._id} value={category._id}>
+                      {category.name}
+                    </option>
                   ))}
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Level *
-                </label>
-                <select
-                  value={formData.level}
-                  onChange={(e) => handleInputChange('level', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                >
-                  <option value="">Select level</option>
-                  {levels.map(level => (
-                    <option key={level} value={level}>{level}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Duration *
-                </label>
-                <input
-                  type="text"
-                  value={formData.duration}
-                  onChange={(e) => handleInputChange('duration', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="e.g., 8 weeks, 12 hours"
-                  required
-                />
+                {errors.categoryId && (
+                  <p className="mt-1 text-sm text-red-600 flex items-center">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    {errors.categoryId}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -298,11 +387,36 @@ const CreateCourse = () => {
                   type="number"
                   value={formData.price}
                   onChange={(e) => handleInputChange('price', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.price ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="0"
                   min="0"
+                  step="0.01"
                   required
                 />
+                {errors.price && (
+                  <p className="mt-1 text-sm text-red-600 flex items-center">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    {errors.price}
+                  </p>
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tags
+                </label>
+                <input
+                  type="text"
+                  value={formData.tags.join(', ')}
+                  onChange={(e) => handleTagsChange(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter tags separated by commas (e.g., javascript, react, web development)"
+                />
+                <p className="mt-1 text-sm text-gray-500">
+                  Add relevant tags to help students find your course
+                </p>
               </div>
 
               <div className="md:col-span-2">
@@ -327,54 +441,12 @@ const CreateCourse = () => {
                   >
                     Choose File
                   </label>
+                  {formData.thumbnail && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      Selected: {formData.thumbnail}
+                    </p>
+                  )}
                 </div>
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Prerequisites
-                </label>
-                <textarea
-                  value={formData.prerequisites}
-                  onChange={(e) => handleInputChange('prerequisites', e.target.value)}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="What should students know before taking this course?"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Learning Outcomes
-                </label>
-                {formData.learningOutcomes.map((outcome, index) => (
-                  <div key={index} className="flex items-center space-x-2 mb-2">
-                    <input
-                      type="text"
-                      value={outcome}
-                      onChange={(e) => handleLearningOutcomeChange(index, e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder={`Learning outcome ${index + 1}`}
-                    />
-                    {formData.learningOutcomes.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeLearningOutcome(index)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addLearningOutcome}
-                  className="flex items-center text-sm text-blue-600 hover:text-blue-700"
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Learning Outcome
-                </button>
               </div>
             </div>
           </FormStep>
@@ -411,36 +483,77 @@ const CreateCourse = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <label className="block text-sm font-medium text-gray-700">
                       Lessons
                     </label>
                     {week.lessons.map((lesson, lessonIndex) => (
-                      <div key={lessonIndex} className="flex items-center space-x-2">
-                        <input
-                          type="text"
-                          value={lesson.title}
-                          onChange={(e) => handleLessonChange(weekIndex, lessonIndex, 'title', e.target.value)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="Lesson title"
-                        />
-                        <input
-                          type="text"
-                          value={lesson.duration}
-                          onChange={(e) => handleLessonChange(weekIndex, lessonIndex, 'duration', e.target.value)}
-                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="Duration"
-                        />
-                        <select
-                          value={lesson.type}
-                          onChange={(e) => handleLessonChange(weekIndex, lessonIndex, 'type', e.target.value)}
-                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="video">Video</option>
-                          <option value="text">Text</option>
-                          <option value="quiz">Quiz</option>
-                          <option value="assignment">Assignment</option>
-                        </select>
+                      <div key={lessonIndex} className="border border-gray-200 rounded-lg p-3 space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Lesson Title *
+                            </label>
+                            <input
+                              type="text"
+                              value={lesson.title}
+                              onChange={(e) => handleLessonChange(weekIndex, lessonIndex, 'title', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="Lesson title"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Duration (minutes)
+                            </label>
+                            <input
+                              type="number"
+                              value={lesson.duration}
+                              onChange={(e) => handleLessonChange(weekIndex, lessonIndex, 'duration', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="30"
+                              min="0"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Content *
+                          </label>
+                          <textarea
+                            value={lesson.content}
+                            onChange={(e) => handleLessonChange(weekIndex, lessonIndex, 'content', e.target.value)}
+                            rows={3}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Lesson content or description"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Video URL
+                          </label>
+                          <input
+                            type="url"
+                            value={lesson.videoUrl}
+                            onChange={(e) => handleLessonChange(weekIndex, lessonIndex, 'videoUrl', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="https://example.com/video.mp4"
+                          />
+                        </div>
+                        
+                        <div className="flex items-center space-x-3">
+                          <label className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={lesson.isFree}
+                              onChange={(e) => handleLessonChange(weekIndex, lessonIndex, 'isFree', e.target.checked)}
+                              className="mr-2"
+                            />
+                            <span className="text-sm text-gray-700">Free lesson</span>
+                          </label>
+                        </div>
                       </div>
                     ))}
                     <button
@@ -475,10 +588,9 @@ const CreateCourse = () => {
                   <h5 className="font-medium text-gray-900 mb-2">Basic Information</h5>
                   <div className="space-y-2 text-sm text-gray-600">
                     <p><strong>Title:</strong> {formData.title || 'Not set'}</p>
-                    <p><strong>Category:</strong> {formData.category || 'Not set'}</p>
-                    <p><strong>Level:</strong> {formData.level || 'Not set'}</p>
-                    <p><strong>Duration:</strong> {formData.duration || 'Not set'}</p>
+                    <p><strong>Category:</strong> {categories.find(c => c._id === formData.categoryId)?.name || 'Not set'}</p>
                     <p><strong>Price:</strong> ₹{formData.price || '0'}</p>
+                    <p><strong>Tags:</strong> {formData.tags.length > 0 ? formData.tags.join(', ') : 'No tags'}</p>
                   </div>
                 </div>
                 
@@ -487,6 +599,7 @@ const CreateCourse = () => {
                   <div className="space-y-1 text-sm text-gray-600">
                     <p><strong>Total Weeks:</strong> {formData.curriculum.length}</p>
                     <p><strong>Total Lessons:</strong> {formData.curriculum.reduce((total, week) => total + week.lessons.length, 0)}</p>
+                    <p><strong>Free Lessons:</strong> {formData.curriculum.reduce((total, week) => total + week.lessons.filter(lesson => lesson.isFree).length, 0)}</p>
                   </div>
                 </div>
               </div>
@@ -496,14 +609,16 @@ const CreateCourse = () => {
                 <p className="text-sm text-gray-600">{formData.description || 'No description provided'}</p>
               </div>
 
-              {formData.learningOutcomes.length > 0 && formData.learningOutcomes[0] && (
+              {formData.tags.length > 0 && (
                 <div className="mt-6">
-                  <h5 className="font-medium text-gray-900 mb-2">Learning Outcomes</h5>
-                  <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                    {formData.learningOutcomes.map((outcome, index) => (
-                      <li key={index}>{outcome}</li>
+                  <h5 className="font-medium text-gray-900 mb-2">Tags</h5>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.tags.map((tag, index) => (
+                      <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                        {tag}
+                      </span>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
             </div>
