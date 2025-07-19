@@ -50,7 +50,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-200 text-gray-800 sticky top-0 z-50 shadow-sm">
+    <nav className="bg-gradient-to-br from-sky-300 to-purple-200 border-b border-gray-200 text-gray-800 sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link
           href="/"
