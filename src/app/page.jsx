@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Footer from "../components/Footer";
 
 export default function Home() {
   return (
@@ -41,10 +42,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Optional simple footer */}
-      <footer className="mt-20 text-sm text-gray-500">
-        © {new Date().getFullYear()} Edventry. All rights reserved.
-      </footer>
+      <Footer />
     </div>
   );
 }
