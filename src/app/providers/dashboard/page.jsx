@@ -231,6 +231,15 @@ const ProviderDashboard = () => {
       }
     };
 
+    // Format date to dd/mm/yyyy
+    const formatDate = (dateString) => {
+      const date = new Date(dateString);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+
     return (
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <div className="flex items-start justify-between mb-4">
@@ -240,7 +249,7 @@ const ProviderDashboard = () => {
             <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-1" />
-                {new Date(event.date).toLocaleDateString()}
+                {formatDate(event.date)}
               </div>
               <div className="flex items-center">
                 <Clock className="h-4 w-4 mr-1" />
