@@ -3,15 +3,16 @@ import connectDB from "@/lib/db";
 import Course from "@/models/Course";
 import Category from "@/models/Category";
 import Lesson from "@/models/Lesson";
+import User from "@/models/User";
 
 // GET /api/courses - Get all courses
 export async function GET() {
   try {
     await connectDB();
     const courses = await Course.find({})
-      .populate('instructor', 'name email')
-      .populate('category', 'name')
-      .populate('lessons', 'title duration')
+      .populate("instructor", "name email")
+      .populate("category", "name")
+      .populate("lessons", "title duration")
       .sort({ createdAt: -1 });
 
     return NextResponse.json(courses);
@@ -37,7 +38,7 @@ export async function POST(request) {
       thumbnail,
       tags,
       curriculum,
-      instructorId
+      instructorId,
     } = body;
 
     // Validation
@@ -66,7 +67,7 @@ export async function POST(request) {
       category: categoryId,
       thumbnail: thumbnail || "",
       tags: tags || [],
-      isPublished: false
+      isPublished: false,
     });
 
     await course.save();
@@ -74,13 +75,17 @@ export async function POST(request) {
     // Create lessons if curriculum is provided
     if (curriculum && curriculum.length > 0) {
       const lessons = [];
-      
+
       for (let weekIndex = 0; weekIndex < curriculum.length; weekIndex++) {
         const week = curriculum[weekIndex];
-        
-        for (let lessonIndex = 0; lessonIndex < week.lessons.length; lessonIndex++) {
+
+        for (
+          let lessonIndex = 0;
+          lessonIndex < week.lessons.length;
+          lessonIndex++
+        ) {
           const lessonData = week.lessons[lessonIndex];
-          
+
           if (lessonData.title && lessonData.content) {
             const lesson = new Lesson({
               title: lessonData.title.trim(),
@@ -89,9 +94,9 @@ export async function POST(request) {
               duration: lessonData.duration || 0,
               course: course._id,
               order: lessons.length + 1,
-              isFree: lessonData.isFree || false
+              isFree: lessonData.isFree || false,
             });
-            
+
             await lesson.save();
             lessons.push(lesson._id);
           }
@@ -105,18 +110,17 @@ export async function POST(request) {
 
     // Populate the response
     const populatedCourse = await Course.findById(course._id)
-      .populate('instructor', 'name email')
-      .populate('category', 'name')
-      .populate('lessons', 'title duration');
+      .populate("instructor", "name email")
+      .populate("category", "name")
+      .populate("lessons", "title duration");
 
     return NextResponse.json(
-      { 
-        message: "Course created successfully", 
-        course: populatedCourse 
+      {
+        message: "Course created successfully",
+        course: populatedCourse,
       },
       { status: 201 }
     );
-
   } catch (error) {
     console.error("Error creating course:", error);
     return NextResponse.json(
