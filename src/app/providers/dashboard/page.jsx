@@ -18,10 +18,10 @@ const ProviderDashboard = () => {
 
   const stats = {
     // Events Stats
-    totalEvents: 24,
-    activeEvents: 12,
-    pendingApproval: 3,
-    completedEvents: 9,
+    totalEvents: 9,
+    activeEvents: 4,
+    pendingApproval: 1,
+    completedEvents: 4,
     
     // Courses Stats
     totalCourses: 8,
@@ -30,10 +30,10 @@ const ProviderDashboard = () => {
     completedCourses: 2,
     
     // Combined Stats
-    totalStudents: 1247,
-    monthlyRevenue: 15240,
-    courseEnrollments: 456,
-    eventRegistrations: 791
+    totalStudents: 247,
+    monthlyRevenue: 2240,
+    courseEnrollments: 56,
+    eventRegistrations: 91
   };
 
   const recentEvents = [
@@ -231,6 +231,15 @@ const ProviderDashboard = () => {
       }
     };
 
+    // Format date to dd/mm/yyyy
+    const formatDate = (dateString) => {
+      const date = new Date(dateString);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+
     return (
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <div className="flex items-start justify-between mb-4">
@@ -240,7 +249,7 @@ const ProviderDashboard = () => {
             <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-1" />
-                {new Date(event.date).toLocaleDateString()}
+                {formatDate(event.date)}
               </div>
               <div className="flex items-center">
                 <Clock className="h-4 w-4 mr-1" />
