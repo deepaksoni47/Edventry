@@ -31,7 +31,7 @@ export default function LoginPage() {
 
       alert("Login successful!"); // Optional: redirect to dashboard or home
 
-      window.location.href = "/dashboard"; // Replace with your route
+      window.location.href = "/"; // Replace with your route
     } catch (error) {
       console.error("Login failed:", error.message);
       alert(error.message);
