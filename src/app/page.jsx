@@ -65,9 +65,9 @@ export default async function LandingPage() {
   ];
 
   const statistics = [
-    { number: "10,000+", label: "Courses Available" },
-    { number: "500+", label: "Educational Institutes" },
-    { number: "50,000+", label: "Students Enrolled" },
+    { number: "1000+", label: "Courses Available" },
+    { number: "10+", label: "Educational Institutes" },
+    { number: "500+", label: "Students Enrolled" },
     { number: "95%", label: "Satisfaction Rate" },
   ];
 
