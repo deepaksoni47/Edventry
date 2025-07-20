@@ -18,10 +18,10 @@ const ProviderDashboard = () => {
 
   const stats = {
     // Events Stats
-    totalEvents: 24,
-    activeEvents: 12,
-    pendingApproval: 3,
-    completedEvents: 9,
+    totalEvents: 9,
+    activeEvents: 4,
+    pendingApproval: 1,
+    completedEvents: 4,
     
     // Courses Stats
     totalCourses: 8,
@@ -30,10 +30,10 @@ const ProviderDashboard = () => {
     completedCourses: 2,
     
     // Combined Stats
-    totalStudents: 1247,
-    monthlyRevenue: 15240,
-    courseEnrollments: 456,
-    eventRegistrations: 791
+    totalStudents: 247,
+    monthlyRevenue: 2240,
+    courseEnrollments: 56,
+    eventRegistrations: 91
   };
 
   const recentEvents = [

@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { X, Menu, CheckCircle } from 'lucide-react';
 import { sidebarConfig, getUserSidebarConfig } from '../../sidebarConfig';
 
@@ -13,6 +13,7 @@ const Sidebar = ({
   className = '' 
 }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const config = getUserSidebarConfig(userType);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -43,10 +44,36 @@ const Sidebar = ({
     return colors[color] || colors.blue;
   };
 
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+      if (res.ok) {
+        // Dispatch event to notify header about logout
+        window.dispatchEvent(new CustomEvent('userLoggedOut'));
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   const NavigationItem = ({ item, isBottom = false }) => {
     const Icon = item.icon;
     const isActive = isActiveRoute(item.href);
     const isDestructive = item.variant === 'destructive';
+
+    // Handle logout action
+    const handleClick = async (e) => {
+      if (isDestructive) {
+        e.preventDefault();
+        await handleLogout();
+      }
+      if (isMobile && onToggle) {
+        onToggle();
+      }
+    };
 
     return (
       <Link
@@ -58,7 +85,7 @@ const Sidebar = ({
             ? 'text-red-600 hover:bg-red-50'
             : 'text-gray-700 hover:bg-gray-50'
         }`}
-        onClick={() => isMobile && onToggle()}
+        onClick={handleClick}
       >
         <Icon className={`mr-3 h-5 w-5 ${isActive ? 'text-blue-600' : ''}`} />
         <span className="flex-1">{item.label}</span>
