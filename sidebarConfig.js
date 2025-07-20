@@ -77,18 +77,6 @@ export const sidebarConfig = {
         href: '/student/profile'
       },
       {
-        id: 'settings',
-        label: 'Settings',
-        icon: Settings,
-        href: '/student/settings'
-      },
-      {
-        id: 'help',
-        label: 'Help & Support',
-        icon: HelpCircle,
-        href: '/student/help'
-      },
-      {
         id: 'logout',
         label: 'Sign Out',
         icon: LogOut,
@@ -160,18 +148,6 @@ export const sidebarConfig = {
         label: 'Profile',
         icon: User,
         href: '/providers/profile'
-      },
-      {
-        id: 'settings',
-        label: 'Settings',
-        icon: Settings,
-        href: '/providers/settings'
-      },
-      {
-        id: 'help',
-        label: 'Help & Support',
-        icon: HelpCircle,
-        href: '/providers/help'
       },
       {
         id: 'logout',
@@ -253,22 +229,10 @@ export const sidebarConfig = {
         href: '/admin/profile'
       },
       {
-        id: 'settings',
-        label: 'Settings',
-        icon: Settings,
-        href: '/admin/settings'
-      },
-      {
         id: 'system',
         label: 'System',
         icon: Database,
         href: '/admin/system'
-      },
-      {
-        id: 'help',
-        label: 'Help & Support',
-        icon: HelpCircle,
-        href: '/admin/help'
       },
       {
         id: 'logout',

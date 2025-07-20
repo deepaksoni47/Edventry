@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [authStatus, setAuthStatus] = useState("loading"); // "loading" | "loggedIn" | "loggedOut"
+  const [userInfo, setUserInfo] = useState(null);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -21,18 +22,32 @@ export default function Navbar() {
 
   const isActive = (href) => pathname === href;
 
+  const checkLogin = async () => {
+    try {
+      const res = await fetch("/api/me", { cache: "no-store" });
+      const data = await res.json();
+      setAuthStatus(data.isLoggedIn ? "loggedIn" : "loggedOut");
+      setUserInfo(data.user || null);
+    } catch {
+      setAuthStatus("loggedOut");
+      setUserInfo(null);
+    }
+  };
+
   useEffect(() => {
-    const checkLogin = async () => {
-      try {
-        const res = await fetch("/api/me", { cache: "no-store" });
-        const data = await res.json();
-        setAuthStatus(data.isLoggedIn ? "loggedIn" : "loggedOut");
-      } catch {
-        setAuthStatus("loggedOut");
-      }
+    checkLogin();
+
+    // Listen for logout events from sidebar
+    const handleLogoutEvent = () => {
+      setAuthStatus("loggedOut");
+      setUserInfo(null);
     };
 
-    checkLogin();
+    window.addEventListener('userLoggedOut', handleLogoutEvent);
+
+    return () => {
+      window.removeEventListener('userLoggedOut', handleLogoutEvent);
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -42,10 +57,28 @@ export default function Navbar() {
       });
       if (res.ok) {
         setAuthStatus("loggedOut");
+        setUserInfo(null);
+        // Dispatch event for sidebar to listen
+        window.dispatchEvent(new CustomEvent('userLoggedOut'));
         router.push("/login");
       }
     } catch (error) {
       console.error("Logout failed:", error);
+    }
+  };
+
+  const getDashboardLink = () => {
+    if (!userInfo) return "/login";
+    
+    switch (userInfo.role) {
+      case "student":
+        return "/student/dashboard";
+      case "instructor":
+        return "/providers/dashboard";
+      case "admin":
+        return "/admin/dashboard";
+      default:
+        return "/student/dashboard";
     }
   };
 
@@ -73,6 +106,16 @@ export default function Navbar() {
               {item.label}
             </Link>
           ))}
+
+          {/* Dashboard Link - Only show when logged in */}
+          {authStatus === "loggedIn" && (
+            <Link
+              href={getDashboardLink()}
+              className="text-sm font-medium text-gray-600 hover:text-blue-500 transition"
+            >
+              Dashboard
+            </Link>
+          )}
 
           {authStatus === "loggedIn" && (
             <button
@@ -115,6 +158,16 @@ export default function Navbar() {
               {item.label}
             </Link>
           ))}
+
+          {/* Dashboard Link - Mobile - Only show when logged in */}
+          {authStatus === "loggedIn" && (
+            <Link
+              href={getDashboardLink()}
+              className="block text-sm font-medium py-2 px-3 rounded-md transition text-gray-700 hover:bg-gray-100"
+            >
+              Dashboard
+            </Link>
+          )}
 
           {authStatus === "loggedIn" && (
             <button
